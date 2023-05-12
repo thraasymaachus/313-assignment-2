@@ -29,8 +29,6 @@ namespace MECHENG_313_A2.Tasks
             ExtendTable(state, eventTrigger);
 
             fst[state][eventTrigger].actions.Add(action);   // Add the action to the list of actions associated with the action/event
-                                                            // We don't need an intermediate variable, because unlike with SetNextState,
-                                                            // fst[...].action is a reference type, and isn't duplicated upon access
         }
 
         public string GetCurrentState()
@@ -79,15 +77,14 @@ namespace MECHENG_313_A2.Tasks
 
         public void ExtendTable(string state, string eventTrigger)
         {
-            if (!fst.ContainsKey(state))                                    // Check if the FST has the state
+            if (!fst.ContainsKey(state))                                    // Check whether the FST has the state
             {
-                fst.Add(state, new Dictionary<string, StateInformation>()); // If it doesn't, add the row
+                fst.Add(state, new Dictionary<string, StateInformation>()); // If it doesn't, add the row dictionary
             }
 
-            if (!fst[state].ContainsKey(eventTrigger)) // Check if the FST doesn't yet have the event within the state.
-                                                       // If the FST previously had no state, this will necessarily be true.
-            {
-                fst[state].Add(eventTrigger, GetDefaultElement()); // If it doesn't, add the column
+            if (!fst[state].ContainsKey(eventTrigger))              // Check whether the state dictionary has the event
+            {                                                       // (If the FST previously had no state, this will necessarily be true.)
+                fst[state].Add(eventTrigger, GetDefaultElement());  // If it doesn't, create it
             }
         }
 
