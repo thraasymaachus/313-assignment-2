@@ -48,8 +48,28 @@ namespace MECHENG_313_A2.Tasks
 
         public string ProcessEvent(string eventTrigger)
         {
-            // TODO: Implement this
-            return null;
+            System.Diagnostics.Debug.WriteLine($"Processing event: {eventTrigger}");
+            
+            string newState = fst[currentState][eventTrigger].next; // Figure out the next state, by accessing the FST
+
+            System.Diagnostics.Debug.WriteLine($"New state: {eventTrigger}");
+
+            StateInformation newStateInformation = fst[newState][eventTrigger];
+            // From there, get the list of actions
+            List<TimestampedAction> actions = newStateInformation.actions;
+
+            // Initialise a ThreadPool? Maybe there's an existing one associated with the FiniteStateMachine? (There's probably not meant to be an external external one, cause nothing ThreadPool related is passed into ProcessEvent())
+            
+            foreach(TimestampedAction action in actions) // For each of the actions,
+            {
+                Thread actionThread = new Thread(() => action(DateTime.Now)); // Associate a worker thread with the action
+                actionThread.Start(); // Start the thread
+            }
+            // Need to make threads anonymous? Perhaps use a ThreadPool? TBD
+
+            actionThread.join();
+
+            return null; // Return the next state
         }
 
         public void SetCurrentState(string state)
