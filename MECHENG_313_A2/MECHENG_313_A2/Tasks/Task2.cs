@@ -1,6 +1,7 @@
 ﻿using MECHENG_313_A2.Views;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace MECHENG_313_A2.Tasks
             // TODO: Implement this
         }
 
+
         public async Task<bool> EnterConfigMode()
         {
             // TODO: Implement this
@@ -31,8 +33,9 @@ namespace MECHENG_313_A2.Tasks
         public async Task<string[]> GetPortNames()
         {
             // TODO: Implement this
-            return new string[0];
-        }
+
+        };
+
 
         public async Task<string> OpenLogFile()
         {

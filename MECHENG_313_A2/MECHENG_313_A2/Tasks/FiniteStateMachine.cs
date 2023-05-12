@@ -5,8 +5,24 @@ using System.Threading;
 
 namespace MECHENG_313_A2.Tasks
 {
+    
     public class FiniteStateMachine : IFiniteStateMachine
     {
+        private string currentState;
+        private Dictionary<string, Dictionary<string, StateInformation>> fsm = new Dictionary<string, Dictionary<string, StateInformation>>();
+
+        public struct StateInformation
+        {
+            public string next;
+            TimestampedAction[] actions;
+
+            public StateInformation(string nextState, TimestampedAction[] actionsList)
+            {
+                next = nextState;
+                actions = actionsList;
+            }
+        }
+
         public void AddAction(string state, string eventTrigger, TimestampedAction action)
         {
             // TODO: Implement this
@@ -14,8 +30,7 @@ namespace MECHENG_313_A2.Tasks
 
         public string GetCurrentState()
         {
-            // TODO: Implement this
-            return null;
+            return currentState;
         }
 
         public string ProcessEvent(string eventTrigger)
