@@ -6,10 +6,11 @@ using System.Threading;
 
 namespace MECHENG_313_A2.Tasks
 {
-    
+
     public class FiniteStateMachine : IFiniteStateMachine
     {
         private string currentState;
+        private string nextstate;
         private Dictionary<string, Dictionary<string, StateInformation>> fst = new Dictionary<string, Dictionary<string, StateInformation>>();
 
         public struct StateInformation                      // Define a struct to represent our state/events
@@ -36,6 +37,11 @@ namespace MECHENG_313_A2.Tasks
             return currentState;
         }
 
+        public string GetNextState()
+        {
+            return nextstate;
+        }
+
         public string ProcessEvent(string eventTrigger)
         {
             // ProcessEvent takes an eventTrigger, and invokes the actions associated with the event, given the current state 
@@ -43,15 +49,15 @@ namespace MECHENG_313_A2.Tasks
 
             // Debug event
             //System.Diagnostics.Debug.WriteLine($"Processing event: {eventTrigger}");
-
             StateInformation currentStateInformation = fst[currentState][eventTrigger];
-            string nextState = currentStateInformation.next; // Figure out the next state, by accessing the FST
+            string nextState = currentStateInformation.next;
+            this.nextstate = nextState;
             List<TimestampedAction> actions = currentStateInformation.actions; // Figure out the actions, by accessing the FST
 
             // Debug new state
             //System.Diagnostics.Debug.WriteLine($"New state: {newState}");
 
-            foreach(TimestampedAction action in actions)                        // For each of the actions,
+            foreach (TimestampedAction action in actions)                        // For each of the actions,
             {
                 ThreadPool.QueueUserWorkItem(state => action(DateTime.Now));    // Queue the action for the next available thread, using a lambda.
                                                                                 // Note that variable state is needed but is not used.
@@ -60,6 +66,7 @@ namespace MECHENG_313_A2.Tasks
             return nextState; // Return the next state.
                               // Usually, we will immediately invoke SetCurrentState to set currentState to nextState
         }
+
 
         public void SetCurrentState(string state)
         {
