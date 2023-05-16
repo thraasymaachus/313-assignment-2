@@ -10,7 +10,7 @@ namespace MECHENG_313_A2.Tasks
     public class FiniteStateMachine : IFiniteStateMachine
     {
         private string currentState;
-        private string nextstate;
+        private string tempNextState;
         private Dictionary<string, Dictionary<string, StateInformation>> fst = new Dictionary<string, Dictionary<string, StateInformation>>();
 
         public struct StateInformation                      // Define a struct to represent our state/events
@@ -39,7 +39,7 @@ namespace MECHENG_313_A2.Tasks
 
         public string GetNextState()
         {
-            return nextstate;
+            return tempNextState;
         }
 
         public string ProcessEvent(string eventTrigger)
@@ -50,8 +50,9 @@ namespace MECHENG_313_A2.Tasks
             // Debug event
             //System.Diagnostics.Debug.WriteLine($"Processing event: {eventTrigger}");
             StateInformation currentStateInformation = fst[currentState][eventTrigger];
-            string nextState = currentStateInformation.next;
-            this.nextstate = nextState;
+            tempNextState = currentStateInformation.next;
+            
+ 
             List<TimestampedAction> actions = currentStateInformation.actions; // Figure out the actions, by accessing the FST
 
             // Debug new state
@@ -63,7 +64,7 @@ namespace MECHENG_313_A2.Tasks
                                                                                 // Note that variable state is needed but is not used.
             }
 
-            return nextState; // Return the next state.
+            return tempNextState; // Return the next state.
                               // Usually, we will immediately invoke SetCurrentState to set currentState to nextState
         }
 

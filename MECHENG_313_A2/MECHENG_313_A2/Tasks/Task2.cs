@@ -25,41 +25,41 @@ namespace MECHENG_313_A2.Tasks
         public Task2()
         {
             //The constructer that set the FSM states, events, actions and next states
-            FSM.SetNextState("G","a","Y");
+            FSM.SetNextState("G","Y","a");
             FSM.AddAction("G", "a", SendToMC);
             FSM.AddAction("G", "a", WriteToLog);
             FSM.AddAction("G", "a", UpdateGUI);
-            FSM.SetNextState("G", "b", "");
+            FSM.SetNextState("G", "", "b");
 
-            FSM.SetNextState("Y", "a", "R");
+            FSM.SetNextState("Y", "R", "a");
             FSM.AddAction("Y", "a", SendToMC);
             FSM.AddAction("Y", "a", WriteToLog);
             FSM.AddAction("Y", "a", UpdateGUI);
-            FSM.SetNextState("Y", "b", "");
+            FSM.SetNextState("Y", "", "b");
 
-            FSM.SetNextState("R", "a", "G");
+            FSM.SetNextState("R", "G", "a");
             FSM.AddAction("R", "a", SendToMC);
             FSM.AddAction("R", "a", WriteToLog);
             FSM.AddAction("R", "a", UpdateGUI);
-            FSM.SetNextState("R", "b", "CY");
+            FSM.SetNextState("R", "CY", "b");
             FSM.AddAction("R", "b", SendToMC);
             FSM.AddAction("R", "b", WriteToLog);
             FSM.AddAction("R", "b", UpdateGUI);
 
-            FSM.SetNextState("CY", "a", "CB");
+            FSM.SetNextState("CY", "CB", "a");
             FSM.AddAction("CY", "a", SendToMC);
             FSM.AddAction("CY", "a", WriteToLog);
             FSM.AddAction("CY", "a", UpdateGUI);
-            FSM.SetNextState("CY", "b", "R");
+            FSM.SetNextState("CY", "R", "b");
             FSM.AddAction("CY", "b", SendToMC);
             FSM.AddAction("CY", "b", WriteToLog);
             FSM.AddAction("CY", "b", UpdateGUI);
 
-            FSM.SetNextState("CB", "a", "CY");
+            FSM.SetNextState("CB", "CY", "a");
             FSM.AddAction("CB", "a", SendToMC);
             FSM.AddAction("CB", "a", WriteToLog);
             FSM.AddAction("CB", "a", UpdateGUI);
-            FSM.SetNextState("CB", "b", "R");
+            FSM.SetNextState("CB", "R", "b");
             FSM.AddAction("CB", "b", SendToMC);
             FSM.AddAction("CB", "b", WriteToLog);
             FSM.AddAction("CB", "b", UpdateGUI);
@@ -73,13 +73,13 @@ namespace MECHENG_313_A2.Tasks
         public async Task<bool> EnterConfigMode()
         {
             string nextstate = FSM.ProcessEvent("b");
-            FSM.SetCurrentState(nextstate);
             if (nextstate=="")
             {
                 return false;
             }
             else
             {
+                FSM.SetCurrentState(nextstate);
                 return true;
             }
             
@@ -87,8 +87,8 @@ namespace MECHENG_313_A2.Tasks
 
         public void ExitConfigMode()
         {
-            string nextstate = FSM.ProcessEvent("b");
-            FSM.SetCurrentState(nextstate);
+            string nextState = FSM.ProcessEvent("b");
+            FSM.SetCurrentState(nextState);
         }
 
         public async Task<string[]> GetPortNames()
@@ -120,7 +120,7 @@ namespace MECHENG_313_A2.Tasks
             //Register for event
             SerialReadAction act = (timestamp, serialInput) =>
             {
-                _taskPage.SerialPrint(DateTime.Now, serialInput);
+                _taskPage.SerialPrint(DateTime.Now, $"{serialInput}\n");
             };
            
             SerialDataReceived += act;
@@ -134,10 +134,9 @@ namespace MECHENG_313_A2.Tasks
 
         public async void Start()
         {
-            string currentstate = await MSI.SetState(TrafficLightState.Green);
-            _taskPage.SerialPrint(DateTime.Now, currentstate);
-            FSM.SetCurrentState("G");
-            _taskPage.SetTrafficLightState(TrafficLightState.Green);
+            string currentState = await MSI.SetState(TrafficLightState.Red);
+            FSM.SetCurrentState("R");
+            FSM.ProcessEvent("a");
         }
 
         public void Tick()
@@ -146,7 +145,7 @@ namespace MECHENG_313_A2.Tasks
             FSM.SetCurrentState(nextstate);
         }
 
-        public async void SendToMC(DateTime timestamp)
+        public async void SendToMC(DateTime timestamp) // What does it do??
         {
             TrafficLightState state;
             string nextstate = FSM.GetNextState();
@@ -155,7 +154,7 @@ namespace MECHENG_313_A2.Tasks
                 state = TrafficLightState.Green;
             }
             else if (nextstate == "R")
-            {
+            {   
                 state = TrafficLightState.Red;
             }
             else if (nextstate == "Y")
@@ -170,6 +169,7 @@ namespace MECHENG_313_A2.Tasks
             {
                 state = TrafficLightState.None;
             }
+            string currentState = await MSI.SetState(TrafficLightState.Green);
             await MSI.SetState(state);
         }
 
@@ -197,7 +197,14 @@ namespace MECHENG_313_A2.Tasks
             {
                 state = TrafficLightState.None;
             }
-            _taskPage.SerialPrint(DateTime.Now, state.ToString());
+            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SetLogEntries.txt");
+            
+            using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
+            {
+                writer.WriteLine($"{DateTime.Now.ToString("o")}\t->\t{state}");
+            }
+            _taskPage.AddLogEntry($"{DateTime.Now.ToString("o")}\t->\t{state}");
+            _taskPage.SerialPrint(DateTime.Now, $"{state}\n");
         }
 
         public void UpdateGUI(DateTime timestamp)
