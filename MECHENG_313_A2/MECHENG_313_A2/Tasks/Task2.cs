@@ -132,7 +132,7 @@ namespace MECHENG_313_A2.Tasks
             _taskPage = taskPage;
         }
 
-        public async void Start()
+        public virtual async void Start()
         {
             string currentState = await MSI.SetState(TrafficLightState.Red);
             FSM.SetCurrentState("R");
