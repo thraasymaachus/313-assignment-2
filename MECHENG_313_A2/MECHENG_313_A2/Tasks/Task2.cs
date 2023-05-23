@@ -141,7 +141,7 @@ namespace MECHENG_313_A2.Tasks
             _taskPage = taskPage;
         }
 
-        public virtual async void Start()
+        public virtual async Task Start()
         {
             string currentState = await MSI.SetState(TrafficLightState.Red);
             FSM.SetCurrentState("R");
@@ -208,9 +208,11 @@ namespace MECHENG_313_A2.Tasks
             }
             string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SetLogEntries.txt");
             
-            using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
-            {
-                writer.WriteLine($"{DateTime.Now.ToString("o")}\t->\t{state}");
+            lock (this) {
+                using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
+                {
+                    writer.WriteLine($"{DateTime.Now.ToString("o")}\t->\t{state}");
+                }
             }
             _taskPage.AddLogEntry($"{DateTime.Now.ToString("o")}\t->\t{state}");
             _taskPage.SerialPrint(DateTime.Now, $"{state}\n");

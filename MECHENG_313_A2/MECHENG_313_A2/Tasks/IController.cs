@@ -96,7 +96,7 @@ namespace MECHENG_313_A2.Tasks
         /// For both task 2 and 3, the traffic light system should start with the green light on.
         /// </para>
         /// </summary>
-        void Start();
+        Task Start();
 
         /// <summary>
         /// Triggers a tick event. 

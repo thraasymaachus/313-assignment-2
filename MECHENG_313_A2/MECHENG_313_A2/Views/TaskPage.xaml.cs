@@ -149,7 +149,7 @@ namespace MECHENG_313_A2.Views
         {
             if (await CheckSetup())
             {
-                _controller.Start();
+                await _controller.Start();
 
                 // Ensure UI updates are done on the UI thread
                 MainThread.BeginInvokeOnMainThread(() =>
