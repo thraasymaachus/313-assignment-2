@@ -15,7 +15,8 @@ namespace MECHENG_313_A2.Tasks
         public override TaskNumber TaskNumber => TaskNumber.Task3;
         private int redlength=1000, greenlength=1000;
         private bool canenter = false;
-        private bool allowenter = false;
+        private bool allowedenter = false;
+        private bool wantenter = false;
 
         public override void ConfigLightLength(int redLength, int greenLength)
         {
@@ -26,21 +27,16 @@ namespace MECHENG_313_A2.Tasks
 
         public override async Task<bool> EnterConfigMode()
         {
+            wantenter = true;
             await Task.Run(() =>
             {
-                while (canenter == false)
+            while (allowedenter == false)
                 {
-                    Task.Delay(1).Wait();
-
-                }
-                canenter = false;
-                allowenter = true;
-                while (allowenter == true)
-                {
-                    Task.Delay(1).Wait();
+                    Task.Delay(100).Wait();
 
                 }
             });
+            allowedenter = false;
             return true;
         }
 
@@ -62,7 +58,11 @@ namespace MECHENG_313_A2.Tasks
                     else if (currentstate == "R")
                     {
                         await Task.Delay(redlength);
-                        this.canenter = true;
+                        if (wantenter)
+                        {
+                            this.canenter = true;
+                            wantenter = false;
+                        }
                     }
                     else
                     {
@@ -76,9 +76,11 @@ namespace MECHENG_313_A2.Tasks
 
         public override void Tick()
         {
-            if (allowenter)
+            if (canenter)
             {
-                _ = base.EnterConfigMode();
+                _=base.EnterConfigMode();
+                allowedenter = true;
+                canenter = false;
             }
             else
             {
