@@ -65,9 +65,8 @@ namespace MECHENG_313_A2.Tasks
             FSM.AddAction("CB", "b", UpdateGUI);
         }
 
-        public void ConfigLightLength(int redLength, int greenLength)
+        public virtual void ConfigLightLength(int redLength, int greenLength)
         {
-            // TODO: Implement this
         }
 
         public string getCurrentstate()
@@ -75,7 +74,7 @@ namespace MECHENG_313_A2.Tasks
             return FSM.GetCurrentState();
         }
 
-        public async Task<bool> EnterConfigMode()
+        public virtual async Task<bool> EnterConfigMode()
         {
             string nextstate = FSM.ProcessEvent("b");
             if (nextstate=="")
@@ -88,6 +87,11 @@ namespace MECHENG_313_A2.Tasks
                 return true;
             }
             
+        }
+
+        public FiniteStateMachine getFSM()
+        {
+            return FSM;
         }
 
         public void ExitConfigMode()
@@ -144,7 +148,7 @@ namespace MECHENG_313_A2.Tasks
             FSM.ProcessEvent("a");
         }
 
-        public void Tick()
+        public virtual void Tick()
         {
             string nextstate = FSM.ProcessEvent("a");
             FSM.SetCurrentState(nextstate);
