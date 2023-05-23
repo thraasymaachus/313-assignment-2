@@ -11,7 +11,7 @@ namespace MECHENG_313_A2.Tasks
     {
         private string currentState;
         private string tempNextState;
-        private string trueNextState;
+
         private Dictionary<string, Dictionary<string, StateInformation>> fst = new Dictionary<string, Dictionary<string, StateInformation>>();
 
         public struct StateInformation                      // Define a struct to represent our state/events
@@ -43,11 +43,6 @@ namespace MECHENG_313_A2.Tasks
             return tempNextState;
         }
 
-        public string GettrueNextState()
-        {
-            return trueNextState;
-        }
-
         public string ProcessEvent(string eventTrigger)
         {
             // ProcessEvent takes an eventTrigger, and invokes the actions associated with the event, given the current state 
@@ -57,8 +52,6 @@ namespace MECHENG_313_A2.Tasks
             //System.Diagnostics.Debug.WriteLine($"Processing event: {eventTrigger}");
             StateInformation currentStateInformation = fst[currentState][eventTrigger];
             tempNextState = currentStateInformation.next;
-            StateInformation nextStateInformation = fst[tempNextState][eventTrigger];
-            trueNextState = nextStateInformation.next;
  
             List<TimestampedAction> actions = currentStateInformation.actions; // Figure out the actions, by accessing the FST
 

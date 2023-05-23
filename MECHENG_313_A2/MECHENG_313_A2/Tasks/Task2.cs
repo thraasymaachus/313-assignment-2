@@ -70,9 +70,9 @@ namespace MECHENG_313_A2.Tasks
             // TODO: Implement this
         }
 
-        public string getNextstate()
+        public string getCurrentstate()
         {
-            return FSM.GettrueNextState();
+            return FSM.GetCurrentState();
         }
 
         public async Task<bool> EnterConfigMode()

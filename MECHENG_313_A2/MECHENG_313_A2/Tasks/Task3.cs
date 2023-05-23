@@ -23,28 +23,19 @@ namespace MECHENG_313_A2.Tasks
             {
                 while (true)
                 {
-                    string nextstate = getNextstate();
-                    if (nextstate == "G")
+                    string  currentstate = getCurrentstate();
+                    if (currentstate == "G")
                     {
                         await Task.Delay(2000);
                     }
-                    else if (nextstate == "R")
+                    else if (currentstate == "R")
                     {
                         await Task.Delay(2000);
-                    }
-                    else if (nextstate == "Y")
-                    {
-                        await Task.Delay(1000);
-                    }
-                    else if (nextstate == "CY")
-                    {
-                        await Task.Delay(1000);
                     }
                     else
                     {
                         await Task.Delay(1000);
                     }
-                    await Task.Delay(1000);
                     Tick();
                 }
             });
