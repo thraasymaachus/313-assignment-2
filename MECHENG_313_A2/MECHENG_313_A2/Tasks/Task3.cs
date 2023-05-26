@@ -19,6 +19,7 @@ namespace MECHENG_313_A2.Tasks
         private bool allowedenter = false;
         private bool wantenter = false;
         private static System.Timers.Timer trafficTimer;
+        private int delayTime = 1000;
 
         public override void ConfigLightLength(int redLength, int greenLength)
         {
@@ -47,23 +48,23 @@ namespace MECHENG_313_A2.Tasks
         {
             await base.Start();
             //var timer = new Timer(Tick, null, 0, 1000);
+            trafficTimer = new System.Timers.Timer(delayTime);
+            trafficTimer.Elapsed += OnTimeEvent;
 
             // Start a background task that invokes Tick() every 1 second
             var tickrun = Task.Run(async () =>
             {
                 while (true)
                 {
-                    trafficTimer = new System.Timers.Timer();
                     string currentstate = getCurrentstate();
-                    int delayTime;
                     this.canenter = false;
                     if (currentstate == "G")
                     {
-                        delayTime = greenlength;
+                        trafficTimer.Interval = greenlength;
                     }
                     else if (currentstate == "R")
                     {
-                        delayTime = redlength;
+                        trafficTimer.Interval = redlength;
                         if (wantenter)
                         {
                             this.canenter = true;
@@ -72,11 +73,10 @@ namespace MECHENG_313_A2.Tasks
                     }
                     else
                     {
-                        delayTime = 1000;
+                        trafficTimer.Interval = 1000;
                     }
-                    trafficTimer = new System.Timers.Timer(delayTime);
-                    trafficTimer.Elapsed += OnTimeEvent;
-                    trafficTimer.Enabled = true;
+                    
+                    trafficTimer.Start();
                 }
             });
         }
