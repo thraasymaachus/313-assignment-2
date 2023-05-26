@@ -43,6 +43,11 @@ namespace MECHENG_313_A2.Tasks
             return tempNextState;
         }
 
+        public void SetNextState(string nextstate)
+        {
+            tempNextState = nextstate;
+        }
+
         public string ProcessEvent(string eventTrigger)
         {
             // ProcessEvent takes an eventTrigger, and invokes the actions associated with the event, given the current state 

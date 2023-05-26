@@ -37,42 +37,43 @@ namespace MECHENG_313_A2.Tasks
                 }
             });
             allowedenter = false;
+
             return true;
         }
 
         public override async Task Start()
         {
             await base.Start();
-            var timer = new Timer(Tick, null, 0, 1000);
+            //var timer = new Timer(Tick, null, 0, 1000);
 
             // Start a background task that invokes Tick() every 1 second
-            //var tickrun = Task.Run(async () =>
-            //{
-            //    while (true)
-            //    {
-            //        string  currentstate = getCurrentstate();
-            //        if (currentstate == "G")
-            //        {
-            //            this.canenter = false;
-            //            await Task.Delay(greenlength);
-            //        }
-            //        else if (currentstate == "R")
-            //        {
-            //            await Task.Delay(redlength);
-            //            if (wantenter)
-            //            {
-            //                this.canenter = true;
-            //                wantenter = false;
-            //            }
-            //        }
-            //        else
-            //        {
-            //            this.canenter = false;
-            //            await Task.Delay(1000);
-            //        }
-            //        Tick();
-            //    }
-            //});
+            var tickrun = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    string currentstate = getCurrentstate();
+                    if (currentstate == "G")
+                    {
+                        this.canenter = false;
+                        await Task.Delay(greenlength);
+                    }
+                    else if (currentstate == "R")
+                    {
+                        await Task.Delay(redlength);
+                        if (wantenter)
+                        {
+                            this.canenter = true;
+                            wantenter = false;
+                        }
+                    }
+                    else
+                    {
+                        this.canenter = false;
+                        await Task.Delay(1000);
+                    }
+                    Tick();
+                }
+            });
         }
 
         private void Tick(object state)

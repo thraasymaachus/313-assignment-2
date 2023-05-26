@@ -97,7 +97,7 @@ namespace MECHENG_313_A2.Tasks
         public void ExitConfigMode()
         {
             string nextState = FSM.ProcessEvent("b");
-            FSM.SetCurrentState(nextState);
+            FSM.SetCurrentState("R");
         }
 
         public async Task<string[]> GetPortNames()
@@ -145,7 +145,11 @@ namespace MECHENG_313_A2.Tasks
         {
             string currentState = await MSI.SetState(TrafficLightState.Red);
             FSM.SetCurrentState("R");
-            FSM.ProcessEvent("a");
+            //FSM.SetNextState("G");
+            //SendToMC(DateTime.Now);
+            //WriteToLog(DateTime.Now);
+            //UpdateGUI(DateTime.Now);
+            Tick();
         }
 
         public virtual void Tick()
