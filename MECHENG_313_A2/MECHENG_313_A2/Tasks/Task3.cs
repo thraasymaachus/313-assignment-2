@@ -48,42 +48,40 @@ namespace MECHENG_313_A2.Tasks
         {
             await base.Start();
             //var timer = new Timer(Tick, null, 0, 1000);
-            trafficTimer = new System.Timers.Timer(delayTime);
-            trafficTimer.Elapsed += OnTimeEvent;
 
             // Start a background task that invokes Tick() every 1 second
-            var tickrun = Task.Run(async () =>
-            {
-                while (true)
-                {
-                    string currentstate = getCurrentstate();
-                    this.canenter = false;
-                    if (currentstate == "G")
-                    {
-                        trafficTimer.Interval = greenlength;
-                    }
-                    else if (currentstate == "R")
-                    {
-                        trafficTimer.Interval = redlength;
-                        if (wantenter)
-                        {
-                            this.canenter = true;
-                            wantenter = false;
-                        }
-                    }
-                    else
-                    {
-                        trafficTimer.Interval = 1000;
-                    }
-                    
-                    trafficTimer.Start();
-                }
-            });
+            
+            trafficTimer = new System.Timers.Timer(delayTime);
+            trafficTimer.Elapsed += OnTimeEvent;
+            trafficTimer.Enabled = true;
+            trafficTimer.AutoReset = true;
         }
 
         private void OnTimeEvent(Object sender, ElapsedEventArgs e)
         {
             Tick();
+
+            string currentstate = getCurrentstate();
+            this.canenter = false;
+            if (currentstate == "G")
+            {
+                delayTime = greenlength;
+            }
+            else if (currentstate == "R")
+            {
+                delayTime = redlength;
+                if (wantenter)
+                {
+                    this.canenter = true;
+                    wantenter = false;
+                }
+            }
+            else
+            {
+                delayTime = 1000;
+            }
+
+            trafficTimer.Interval = delayTime;
         }
 
 
