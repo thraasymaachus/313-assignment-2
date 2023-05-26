@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using System.Timers;
 using System.Threading.Tasks;
 
 namespace MECHENG_313_A2.Tasks
@@ -17,6 +18,7 @@ namespace MECHENG_313_A2.Tasks
         private bool canenter = false;
         private bool allowedenter = false;
         private bool wantenter = false;
+        private static System.Timers.Timer trafficTimer;
 
         public override void ConfigLightLength(int redLength, int greenLength)
         {
@@ -51,15 +53,17 @@ namespace MECHENG_313_A2.Tasks
             {
                 while (true)
                 {
+                    trafficTimer = new System.Timers.Timer();
                     string currentstate = getCurrentstate();
+                    int delayTime;
+                    this.canenter = false;
                     if (currentstate == "G")
                     {
-                        this.canenter = false;
-                        await Task.Delay(greenlength);
+                        delayTime = greenlength;
                     }
                     else if (currentstate == "R")
                     {
-                        await Task.Delay(redlength);
+                        delayTime = redlength;
                         if (wantenter)
                         {
                             this.canenter = true;
@@ -68,18 +72,20 @@ namespace MECHENG_313_A2.Tasks
                     }
                     else
                     {
-                        this.canenter = false;
-                        await Task.Delay(1000);
+                        delayTime = 1000;
                     }
-                    Tick();
+                    trafficTimer = new System.Timers.Timer(delayTime);
+                    trafficTimer.Elapsed += OnTimeEvent;
+                    trafficTimer.Enabled = true;
                 }
             });
         }
 
-        private void Tick(object state)
+        private void OnTimeEvent(Object sender, ElapsedEventArgs e)
         {
-            base.Tick();
+            Tick();
         }
+
 
         public override void Tick()
         {
