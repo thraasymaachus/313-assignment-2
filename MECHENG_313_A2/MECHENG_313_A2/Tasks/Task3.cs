@@ -18,14 +18,39 @@ namespace MECHENG_313_A2.Tasks
         private bool canenter = false;
         private bool allowedenter = false;
         private bool wantenter = false;
-        private static System.Timers.Timer trafficTimer;
-        private int delayTime = 1000;
+        private int delayTime;
+        private static System.Timers.Timer trafficTimer = new System.Timers.Timer(1000);
+        
 
         public override void ConfigLightLength(int redLength, int greenLength)
         {
             this.redlength = redLength;
             this.greenlength = greenLength;
 
+            
+
+        }
+
+        public override void ExitConfigMode()
+        {
+            base.ExitConfigMode();
+
+            string currentstate = getCurrentstate();
+
+            if (currentstate == "G")
+            {
+                delayTime = greenlength;
+            }
+            else if (currentstate == "R")
+            {
+                delayTime = redlength;
+            }
+            else
+            {
+                delayTime = 1000;
+            }
+
+            trafficTimer.Interval = delayTime;
         }
 
         public override async Task<bool> EnterConfigMode()
@@ -47,11 +72,7 @@ namespace MECHENG_313_A2.Tasks
         public override async Task Start()
         {
             await base.Start();
-            //var timer = new Timer(Tick, null, 0, 1000);
-
-            // Start a background task that invokes Tick() every 1 second
             
-            trafficTimer = new System.Timers.Timer(delayTime);
             trafficTimer.Elapsed += OnTimeEvent;
             trafficTimer.Enabled = true;
             trafficTimer.AutoReset = true;
@@ -59,8 +80,21 @@ namespace MECHENG_313_A2.Tasks
 
         private void OnTimeEvent(Object sender, ElapsedEventArgs e)
         {
-            Tick();
+            string currentstate = getCurrentstate();
 
+            if ((currentstate == "CY") || (currentstate == "CB")) {
+                SetDelay();
+                Tick();
+            }
+            else
+            {
+                Tick();
+                SetDelay();
+            }
+        }
+
+        public void SetDelay()
+        {
             string currentstate = getCurrentstate();
             this.canenter = false;
             if (currentstate == "G")
@@ -83,7 +117,6 @@ namespace MECHENG_313_A2.Tasks
 
             trafficTimer.Interval = delayTime;
         }
-
 
         public override void Tick()
         {

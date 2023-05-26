@@ -94,7 +94,7 @@ namespace MECHENG_313_A2.Tasks
             return FSM;
         }
 
-        public void ExitConfigMode()
+        public virtual void ExitConfigMode()
         {
             string nextState = FSM.ProcessEvent("b");
             FSM.SetCurrentState("R");
