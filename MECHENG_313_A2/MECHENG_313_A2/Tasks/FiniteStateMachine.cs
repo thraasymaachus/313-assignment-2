@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MECHENG_313_A2.Views;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -69,14 +70,14 @@ namespace MECHENG_313_A2.Tasks
                                                                                 // Note that variable state is needed but is not used.
             }
 
-            return tempNextState; // Return the next state.
-                              // Usually, we will immediately invoke SetCurrentState to set currentState to nextState
+            return tempNextState; // Return the next state.// Usually, we will immediately invoke SetCurrentState to set currentState to nextState
         }
 
 
         public void SetCurrentState(string state)
         {
             currentState = state;
+
         }
 
         public void SetNextState(string state, string nextState, string eventTrigger)
