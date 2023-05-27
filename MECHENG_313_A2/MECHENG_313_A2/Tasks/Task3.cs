@@ -55,9 +55,13 @@ namespace MECHENG_313_A2.Tasks
 
         public override async Task<bool> EnterConfigMode()
         {
-            wantenter = true;
             await Task.Run(() =>
             {
+            while (getCurrentstate() != "R")
+                {
+                    Task.Delay(100).Wait();
+                }
+            this.canenter = true;
             while (allowedenter == false)
                 {
                     Task.Delay(100).Wait();
@@ -81,16 +85,17 @@ namespace MECHENG_313_A2.Tasks
         private void OnTimeEvent(Object sender, ElapsedEventArgs e)
         {
             string currentstate = getCurrentstate();
-
-            if ((currentstate == "CY") || (currentstate == "CB")) {
-                SetDelay();
-                Tick();
-            }
-            else
-            {
-                Tick();
-                SetDelay();
-            }
+            Tick();
+            SetDelay();
+            //if ((currentstate == "CY") || (currentstate == "CB")) {
+            //    SetDelay();
+            //    Tick();
+            //}
+            //else
+            //{
+            //    Tick();
+            //    SetDelay();
+            //}
         }
 
         public void SetDelay()
@@ -104,11 +109,6 @@ namespace MECHENG_313_A2.Tasks
             else if (currentstate == "R")
             {
                 delayTime = redlength;
-                if (wantenter)
-                {
-                    this.canenter = true;
-                    wantenter = false;
-                }
             }
             else
             {
