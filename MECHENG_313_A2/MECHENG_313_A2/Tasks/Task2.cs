@@ -21,8 +21,6 @@ namespace MECHENG_313_A2.Tasks
         private FiniteStateMachine FSM = new FiniteStateMachine();
         private string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SetLogEntries.txt");
 
-        //The event
-        public event SerialReadAction SerialDataReceived;
         public Task2()
         {
             //The constructer that set the FSM states, events, actions and next states
@@ -66,9 +64,7 @@ namespace MECHENG_313_A2.Tasks
             FSM.AddAction("CB", "b", UpdateGUI);
         }
 
-        public virtual void ConfigLightLength(int redLength, int greenLength)
-        {
-        }
+        public virtual void ConfigLightLength(int redLength, int greenLength) { }
 
         public string getCurrentstate()
         {
@@ -77,16 +73,13 @@ namespace MECHENG_313_A2.Tasks
 
         public virtual async Task<bool> EnterConfigMode()
         {
-            string message = $"{DateTime.Now.ToString("o")}\tEventTriggered\tConfig\tConfig event triggered";
-            lock (this)
-            {
-                using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
-                {
-                    writer.WriteLine(message);
-                }
-            }
-            _taskPage.AddLogEntry(message);
+            //Process the config triggered event "b" and enter config mode
+            string message = $"{DateTime.Now.ToString()}\tEventTriggered\tConfig\tConfig event triggered";
+            WriteInFile(message);
+
             string nextstate = FSM.ProcessEvent("b");
+
+            //Set state and return true only if current state is red. I.e. nextstate are not empty
             if (nextstate == "")
             {
                 return false;
@@ -98,16 +91,10 @@ namespace MECHENG_313_A2.Tasks
             }
 
         }
-
-        public FiniteStateMachine getFSM()
+        
+        public void WriteInFile(string message)
         {
-            return FSM;
-        }
-
-        public virtual void ExitConfigMode()
-
-        {
-            string message = $"{DateTime.Now.ToString("o")}\tEventTriggered\tConfig\tConfig event triggered";
+            //write log to file
             lock (this)
             {
                 using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
@@ -115,20 +102,28 @@ namespace MECHENG_313_A2.Tasks
                     writer.WriteLine(message);
                 }
             }
+            //Update GUI log
+            _taskPage.AddLogEntry(message);
+        }
+
+        public virtual void ExitConfigMode()
+        {
+            //Process the config triggered event "b" and leave config mode
+            string message = $"{DateTime.Now.ToString("o")}\tEventTriggered\tConfig\tConfig event triggered";
+            WriteInFile(message);
             string nextState = FSM.ProcessEvent("b");
-            FSM.SetCurrentState("R");
+            FSM.SetCurrentState(nextState);
         }
 
         public async Task<string[]> GetPortNames()
         {
+            //Find Available Ports
             return await MSI.GetPortNames();
         }
 
         public async Task<string> OpenLogFile()
         {
-            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SetLogEntries.txt");
             //Check if file exists, if yes read existing content, if not create it
-
             if (File.Exists(filePath))
             {
                 string[] text = File.ReadAllLines(filePath);
@@ -144,14 +139,18 @@ namespace MECHENG_313_A2.Tasks
 
         public async Task<bool> OpenPort(string serialPort, int baudRate)
         {
+            //Open selected port
+
             bool isopen = await MSI.OpenPort(serialPort, baudRate);
-            //Register for event
-            SerialReadAction act = (timestamp, serialInput) =>
+
+            //Initlitialize a delegate
+            SerialReadAction readAction = (timestamp, serialInput) =>
             {
+                //Invoke the function call with parameters from MockSerialInterface
                 _taskPage.SerialPrint(DateTime.Now, $"{serialInput}\n");
             };
-
-            SerialDataReceived += act;
+            //Add delegate to event
+            MSI.SerialDataReceived += readAction;
             return isopen;
         }
 
@@ -162,149 +161,78 @@ namespace MECHENG_313_A2.Tasks
 
         public virtual async Task Start()
         {
-            string currentState = await MSI.SetState(TrafficLightState.Red);
+            //Start the Systen 
+            await MSI.SetState(TrafficLightState.Red);
             FSM.SetCurrentState("R");
-            string message = $"{DateTime.Now.ToString("o")}\tProgram Start";
-            lock (this)
-            {
-                using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
-                {
-                    writer.WriteLine(message);
-                }
-            }
-            _taskPage.AddLogEntry(message);
+            //Log the start
+            string message = $"{DateTime.Now.ToString()}\tProgram Start";
+            WriteInFile(message);
             Tick();
         }
 
         public virtual void Tick()
         {
-            string message = $"{DateTime.Now.ToString("o")}\tEventTriggered\tTick\tTick event triggered";
-            lock (this)
-            {
-                using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
-                {
-                    writer.WriteLine(message);
-                }
-            }
-            _taskPage.AddLogEntry(message);
+            //Log the tick
+            string message = $"{DateTime.Now.ToString()}\tEventTriggered\tTick\tTick event triggered";
+            WriteInFile(message);
+            //Process the tick triggered event "a"
             string nextstate = FSM.ProcessEvent("a");
             FSM.SetCurrentState(nextstate);
-            message = $"{DateTime.Now.ToString("o")}\tStateEntered\t{nextstate}\tEntered next state {nextstate}";
-            lock (this)
-            {
-                using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
-                {
-                    writer.WriteLine(message);
-                }
-            }
-            _taskPage.AddLogEntry(message);
-
         }
 
-        public async void SendToMC(DateTime timestamp) // What does it do??
+        public TrafficLightState MatchEnumFinite(string state)
         {
-            TrafficLightState state;
-            string nextstate = FSM.GetNextState();
-            if (nextstate == "G")
+            //This function match the states of Finite state machine with the enum TrafficLightState
+            if (state == "G")
             {
-                state = TrafficLightState.Green;
+                return TrafficLightState.Green;
             }
-            else if (nextstate == "R")
+            else if (state == "R")
             {
-                state = TrafficLightState.Red;
+                return TrafficLightState.Red;
             }
-            else if (nextstate == "Y")
+            else if (state == "Y")
             {
-                state = TrafficLightState.Yellow;
+                return TrafficLightState.Yellow;
             }
-            else if (nextstate == "CY")
+            else if (state == "CY")
             {
-                state = TrafficLightState.Yellow;
+                return TrafficLightState.Yellow;
             }
             else
             {
-                state = TrafficLightState.None;
+                return TrafficLightState.None;
             }
-            string currentState = await MSI.SetState(TrafficLightState.Green);
-            await MSI.SetState(state);
+        }
+
+
+        public async void SendToMC(DateTime timestamp) 
+        {
+            //Send a serial command to the Microcontroller
+            string nextstate = FSM.GetNextState();
+            TrafficLightState state = MatchEnumFinite(nextstate);
+            string serialResponse = await MSI.SetState(state);
+            //Show the Serial Response
+            _taskPage.SerialPrint(DateTime.Now, $"{serialResponse}\n");
         }
 
         public void WriteToLog(DateTime timestamp)
         {
-            TrafficLightState state;
+            //update the log
             string nextstate = FSM.GetNextState();
-            if (nextstate == "G")
-            {
-                state = TrafficLightState.Green;
-            }
-            else if (nextstate == "R")
-            {
-                state = TrafficLightState.Red;
-            }
-            else if (nextstate == "Y")
-            {
-                state = TrafficLightState.Yellow;
-            }
-            else if (nextstate == "CY")
-            {
-                state = TrafficLightState.Yellow;
-            }
-            else
-            {
-                state = TrafficLightState.None;
-            }
-
-            lock (this)
-            {
-                using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
-                {
-                    writer.WriteLine($"{DateTime.Now.ToString("o")}\t{state}");
-                }
-            }
-            _taskPage.AddLogEntry($"{DateTime.Now.ToString("o")}\t{state}");
-            _taskPage.SerialPrint(DateTime.Now, $"{state}\n");
+            TrafficLightState state = MatchEnumFinite(nextstate);
+            string message = $"{DateTime.Now.ToString()}\tStateEntered\t{nextstate}\tEntered next state {nextstate}";
+            WriteInFile(message);
         }
 
         public void UpdateGUI(DateTime timestamp)
         {
-            TrafficLightState state;
-            string colour;
+            //Update the GUI and update the log
             string nextstate = FSM.GetNextState();
-            if (nextstate == "G")
-            {
-                state = TrafficLightState.Green;
-                colour = "Green";
-            }
-            else if (nextstate == "R")
-            {
-                state = TrafficLightState.Red;
-                colour = "Red";
-            }
-            else if (nextstate == "Y")
-            {
-                state = TrafficLightState.Yellow;
-                colour = "Yellow";
-            }
-            else if (nextstate == "CY")
-            {
-                state = TrafficLightState.Yellow;
-                colour = "Yellow";
-            }
-            else
-            {
-                state = TrafficLightState.None;
-                colour = "None";
-            }
+            TrafficLightState state = MatchEnumFinite(nextstate);
             _taskPage.SetTrafficLightState(state);
-            string message = $"{DateTime.Now.ToString("o")}\tActionFinished\tUpdated GUI light\tThe GUI traffic light has been set to {state.ToString()}";
-            lock (this)
-            {
-                using (StreamWriter writer = new StreamWriter(filePath, true)) // second argument 'true' to append data to the file
-                {
-                    writer.WriteLine(message);
-                }
-            }
-            _taskPage.AddLogEntry(message);
+            string message = $"{DateTime.Now.ToString()}\tActionFinished\tUpdated GUI light\tThe GUI traffic light has been set to {state.ToString()}";
+            WriteInFile(message);
         }
     }
 }

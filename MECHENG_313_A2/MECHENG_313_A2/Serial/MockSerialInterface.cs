@@ -14,6 +14,9 @@ namespace MECHENG_313_A2.Serial
 
         public string PortOpened => _portName;
 
+        //The event
+        public event SerialReadAction SerialDataReceived;
+
         public MockSerialInterface()
         {
             _availablePorts = new string[] { "COM1", "COM2", "COM3" };
