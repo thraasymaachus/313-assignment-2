@@ -53,7 +53,7 @@ namespace MECHENG_313_A2.Tasks
             //System.Diagnostics.Debug.WriteLine($"Processing event: {eventTrigger}");
             StateInformation currentStateInformation = fst[currentState][eventTrigger];
             tempNextState = currentStateInformation.next;
- 
+
             List<TimestampedAction> actions = currentStateInformation.actions; // Figure out the actions, by accessing the FST
 
             // Debug new state
