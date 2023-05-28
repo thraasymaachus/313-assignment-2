@@ -14,58 +14,39 @@ namespace MECHENG_313_A2.Tasks
     internal class Task3 : Task2
     {
         public override TaskNumber TaskNumber => TaskNumber.Task3;
-        private int redlength=1000, greenlength=1000;
-        private bool canenter = false;
-        private bool allowedenter = false;
-        private bool wantenter = false;
+        private int redlength = 1000, greenlength = 1000;
+        private bool wantEnter = false;
+        private bool allowedEnter = false;
         private int delayTime;
         private static System.Timers.Timer trafficTimer = new System.Timers.Timer(1000);
-        
+
 
         public override void ConfigLightLength(int redLength, int greenLength)
         {
+            //Alter time delays for red and green light
             this.redlength = redLength;
             this.greenlength = greenLength;
-
-            
-
         }
 
         public override void ExitConfigMode()
         {
+            //Set the delay immediately after exitingm in order to apply new interval
             base.ExitConfigMode();
-
-            string currentstate = getCurrentstate();
-
-            if (currentstate == "G")
-            {
-                delayTime = greenlength;
-            }
-            else if (currentstate == "R")
-            {
-                delayTime = redlength;
-            }
-            else
-            {
-                delayTime = 1000;
-            }
-
-            trafficTimer.Interval = delayTime;
+            SetDelay();
         }
 
         public override async Task<bool> EnterConfigMode()
         {
-            canenter = true;
+            //Toogle state to want enter
+            wantEnter = true;
+
+            //Wait for the enter is allowed by Tickand then return true
             await Task.Run(() =>
             {
- 
-            while (allowedenter == false)
-                {
-                    Task.Delay(100).Wait();
-
-                }
+                while (allowedEnter == false)
+                { }
             });
-            allowedenter = false;
+            allowedEnter = false;
 
             return true;
         }
@@ -73,7 +54,7 @@ namespace MECHENG_313_A2.Tasks
         public override async Task Start()
         {
             await base.Start();
-            
+            //Setting up timer to autotick
             trafficTimer.Elapsed += OnTimeEvent;
             trafficTimer.Enabled = true;
             trafficTimer.AutoReset = true;
@@ -83,19 +64,11 @@ namespace MECHENG_313_A2.Tasks
         {
             Tick();
             SetDelay();
-            //if ((currentstate == "CY") || (currentstate == "CB")) {
-            //    SetDelay();
-            //    Tick();
-            //}
-            //else
-            //{
-            //    Tick();
-            //    SetDelay();
-            //}
         }
 
         public void SetDelay()
         {
+            //Adjust timer delaying time (Traffic light display time) based on current state
             string currentstate = getCurrentstate();
             if (currentstate == "G")
             {
@@ -115,11 +88,13 @@ namespace MECHENG_313_A2.Tasks
 
         public override void Tick()
         {
-            if (canenter&&(getCurrentstate()=="R"))
+            //Enter config mode if user want enter and currently at end of red light
+            //Otherwise do normal tick
+            if (wantEnter && (getCurrentstate() == "R"))
             {
-                _=base.EnterConfigMode();
-                allowedenter = true;
-                canenter = false;
+                _ = base.EnterConfigMode();
+                allowedEnter = true;
+                wantEnter = false;
             }
             else
             {

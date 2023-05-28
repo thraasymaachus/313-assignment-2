@@ -91,7 +91,7 @@ namespace MECHENG_313_A2.Tasks
             }
 
         }
-        
+
         public void WriteInFile(string message)
         {
             //write log to file
@@ -206,7 +206,7 @@ namespace MECHENG_313_A2.Tasks
         }
 
 
-        public async void SendToMC(DateTime timestamp) 
+        public async void SendToMC(DateTime timestamp)
         {
             //Send a serial command to the Microcontroller
             string nextstate = FSM.GetNextState();
