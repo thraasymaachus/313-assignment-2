@@ -127,6 +127,7 @@ namespace MECHENG_313_A2.Tasks
             if (File.Exists(filePath))
             {
                 string[] text = File.ReadAllLines(filePath);
+                Array.Reverse(text);
                 _taskPage.SetLogEntries(text);
             }
             else
